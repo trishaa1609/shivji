@@ -59,23 +59,23 @@
 
     let isPlaying = false;
 
-    function togglePlay() {
+    img.addEventListener("click", () => {
+      // Ensuring audio is allowed to play on first interaction
       if (!isPlaying) {
         audio.currentTime = 0;
-        audio.play();
-        img.classList.add("glow-on-click");
-        isPlaying = true;
+        audio.play().then(() => {
+          img.classList.add("glow-on-click");
+          isPlaying = true;
+        }).catch((e) => {
+          console.error("Audio play failed:", e);
+        });
       } else {
         audio.pause();
         audio.currentTime = 0;
         img.classList.remove("glow-on-click");
         isPlaying = false;
       }
-    }
-
-    // Use click for mobile compatibility
-    img.addEventListener("click", togglePlay);
-    img.addEventListener("touchstart", togglePlay);
+    });
   </script>
 </body>
 </html>
