@@ -27,6 +27,16 @@
       height: 100%;
       object-fit: cover;
       z-index: 0;
+      transition: filter 1s ease-in-out;
+    }
+
+    .background-img.ambient-glow {
+      animation: ambientPulse 2s infinite alternate ease-in-out;
+    }
+
+    @keyframes ambientPulse {
+      0% { filter: brightness(1) saturate(1); }
+      100% { filter: brightness(1.2) saturate(1.4); }
     }
 
     .transparent-img {
@@ -36,20 +46,27 @@
       transform: translate(-50%, -50%);
       width: 500px;
       z-index: 1;
-      transition: filter 0.3s ease;
       filter: drop-shadow(0 0 30px red);
+      transition: transform 0.3s ease, filter 0.3s ease;
       cursor: pointer;
       touch-action: manipulation;
     }
 
     .transparent-img.glow-on-click {
       filter: drop-shadow(0 0 80px red);
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.04); }
+      100% { transform: translate(-50%, -50%) scale(1); }
     }
   </style>
 </head>
 <body>
   <div class="layer-wrapper">
-    <img src="back.jpg" alt="Background Image" class="background-img">
+    <img src="back.jpg" alt="Background Image" class="background-img" id="background">
     <img src="shiva2.png" alt="Shivji Foreground" class="transparent-img" id="shivji">
   </div>
 
@@ -58,33 +75,34 @@
   <script>
     const audio = document.getElementById("aartiAudio");
     const img = document.getElementById("shivji");
+    const bg = document.getElementById("background");
 
-    // Start audio + glow
     const startAudio = () => {
       try {
         audio.currentTime = 0;
         audio.play();
         img.classList.add("glow-on-click");
+        bg.classList.add("ambient-glow");
       } catch (e) {
         console.error("Audio couldn't play:", e);
       }
     };
 
-    // Stop audio + remove glow
     const stopAudio = () => {
       audio.pause();
       audio.currentTime = 0;
       img.classList.remove("glow-on-click");
+      bg.classList.remove("ambient-glow");
     };
 
-    // --- Desktop ---
+    // Desktop
     img.addEventListener("mousedown", startAudio);
     img.addEventListener("mouseup", stopAudio);
     img.addEventListener("mouseleave", stopAudio);
 
-    // --- Mobile ---
+    // Mobile
     img.addEventListener("touchstart", (e) => {
-      e.preventDefault(); // prevents double-fire
+      e.preventDefault();
       startAudio();
     });
     img.addEventListener("touchend", stopAudio);
