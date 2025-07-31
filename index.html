@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Shivji Aarti Click</title>
+  <title>Shivji Aarti Hold</title>
   <style>
     body {
       margin: 0;
@@ -37,11 +37,13 @@
       width: 500px;
       z-index: 1;
       transition: filter 0.3s ease;
-      filter: drop-shadow(0 0 30px red); /* normal glow */
+      filter: drop-shadow(0 0 30px red);
+      cursor: pointer;
+      touch-action: manipulation;
     }
 
     .transparent-img.glow-on-click {
-      filter: drop-shadow(0 0 80px red); /* intensified glow */
+      filter: drop-shadow(0 0 80px red);
     }
   </style>
 </head>
@@ -57,25 +59,36 @@
     const audio = document.getElementById("aartiAudio");
     const img = document.getElementById("shivji");
 
-    let isPlaying = false;
+    // Start playing
+    const startAudio = () => {
+      audio.currentTime = 0;
+      audio.play().then(() => {
+        img.classList.add("glow-on-click");
+      }).catch(err => {
+        console.error("Audio play blocked:", err);
+      });
+    };
 
-    img.addEventListener("click", () => {
-      // Ensuring audio is allowed to play on first interaction
-      if (!isPlaying) {
-        audio.currentTime = 0;
-        audio.play().then(() => {
-          img.classList.add("glow-on-click");
-          isPlaying = true;
-        }).catch((e) => {
-          console.error("Audio play failed:", e);
-        });
-      } else {
-        audio.pause();
-        audio.currentTime = 0;
-        img.classList.remove("glow-on-click");
-        isPlaying = false;
-      }
+    // Stop playing
+    const stopAudio = () => {
+      audio.pause();
+      audio.currentTime = 0;
+      img.classList.remove("glow-on-click");
+    };
+
+    // Desktop
+    img.addEventListener("mousedown", startAudio);
+    img.addEventListener("mouseup", stopAudio);
+    img.addEventListener("mouseleave", stopAudio);
+
+    // Mobile
+    img.addEventListener("touchstart", (e) => {
+      e.preventDefault(); // prevent double triggers
+      startAudio();
     });
+
+    img.addEventListener("touchend", stopAudio);
+    img.addEventListener("touchcancel", stopAudio);
   </script>
 </body>
 </html>
