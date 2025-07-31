@@ -57,17 +57,25 @@
     const audio = document.getElementById("aartiAudio");
     const img = document.getElementById("shivji");
 
-    document.addEventListener("mousedown", () => {
-      audio.currentTime = 0;
-      audio.play();
-      img.classList.add("glow-on-click");
-    });
+    let isPlaying = false;
 
-    document.addEventListener("mouseup", () => {
-      audio.pause();
-      audio.currentTime = 0;
-      img.classList.remove("glow-on-click");
-    });
+    function togglePlay() {
+      if (!isPlaying) {
+        audio.currentTime = 0;
+        audio.play();
+        img.classList.add("glow-on-click");
+        isPlaying = true;
+      } else {
+        audio.pause();
+        audio.currentTime = 0;
+        img.classList.remove("glow-on-click");
+        isPlaying = false;
+      }
+    }
+
+    // Use click for mobile compatibility
+    img.addEventListener("click", togglePlay);
+    img.addEventListener("touchstart", togglePlay);
   </script>
 </body>
 </html>
