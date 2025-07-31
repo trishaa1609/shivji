@@ -59,34 +59,34 @@
     const audio = document.getElementById("aartiAudio");
     const img = document.getElementById("shivji");
 
-    // Start playing
+    // Start audio + glow
     const startAudio = () => {
-      audio.currentTime = 0;
-      audio.play().then(() => {
+      try {
+        audio.currentTime = 0;
+        audio.play();
         img.classList.add("glow-on-click");
-      }).catch(err => {
-        console.error("Audio play blocked:", err);
-      });
+      } catch (e) {
+        console.error("Audio couldn't play:", e);
+      }
     };
 
-    // Stop playing
+    // Stop audio + remove glow
     const stopAudio = () => {
       audio.pause();
       audio.currentTime = 0;
       img.classList.remove("glow-on-click");
     };
 
-    // Desktop
+    // --- Desktop ---
     img.addEventListener("mousedown", startAudio);
     img.addEventListener("mouseup", stopAudio);
     img.addEventListener("mouseleave", stopAudio);
 
-    // Mobile
+    // --- Mobile ---
     img.addEventListener("touchstart", (e) => {
-      e.preventDefault(); // prevent double triggers
+      e.preventDefault(); // prevents double-fire
       startAudio();
     });
-
     img.addEventListener("touchend", stopAudio);
     img.addEventListener("touchcancel", stopAudio);
   </script>
