@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Shivji Aarti Hold</title>
+  <title>Shivji Aarti Click</title>
   <style>
     body {
       margin: 0;
@@ -27,16 +27,6 @@
       height: 100%;
       object-fit: cover;
       z-index: 0;
-      transition: filter 1s ease-in-out;
-    }
-
-    .background-img.ambient-glow {
-      animation: ambientPulse 2s infinite alternate ease-in-out;
-    }
-
-    @keyframes ambientPulse {
-      0% { filter: brightness(1) saturate(1); }
-      100% { filter: brightness(1.2) saturate(1.4); }
     }
 
     .transparent-img {
@@ -46,28 +36,48 @@
       transform: translate(-50%, -50%);
       width: 500px;
       z-index: 1;
+      transition: filter 0.3s ease;
       filter: drop-shadow(0 0 30px red);
-      transition: transform 0.3s ease, filter 0.3s ease;
-      cursor: pointer;
-      touch-action: manipulation;
     }
 
     .transparent-img.glow-on-click {
       filter: drop-shadow(0 0 80px red);
-      animation: pulse 1.5s infinite ease-in-out;
     }
 
-    @keyframes pulse {
-      0% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.04); }
-      100% { transform: translate(-50%, -50%) scale(1); }
+    #aartiIcon {
+      position: absolute;
+      width: 120px;
+      height: auto;
+      pointer-events: none;
+      z-index: 2;
+      filter: drop-shadow(0 0 20px gold);
+      display: none;
+    }
+
+    /* Snowflakes */
+    .snow {
+      position: fixed;
+      top: -10px;
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: fall linear forwards;
+      z-index: 3;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
     }
   </style>
 </head>
 <body>
   <div class="layer-wrapper">
-    <img src="back.jpg" alt="Background Image" class="background-img" id="background">
+    <img src="back.jpg" alt="Background Image" class="background-img">
     <img src="shiva2.png" alt="Shivji Foreground" class="transparent-img" id="shivji">
+    <img src="arti.png" id="aartiIcon" alt="Aarti Icon">
   </div>
 
   <audio id="aartiAudio" src="1.mp3" preload="auto"></audio>
@@ -75,38 +85,77 @@
   <script>
     const audio = document.getElementById("aartiAudio");
     const img = document.getElementById("shivji");
-    const bg = document.getElementById("background");
+    const aartiIcon = document.getElementById("aartiIcon");
 
-    const startAudio = () => {
-      try {
-        audio.currentTime = 0;
-        audio.play();
-        img.classList.add("glow-on-click");
-        bg.classList.add("ambient-glow");
-      } catch (e) {
-        console.error("Audio couldn't play:", e);
-      }
-    };
+    let centerX = 0;
+    let centerY = 0;
+    let angle = 0;
+    let radius = 50; // size of the circle
+    let aartiInterval;
 
-    const stopAudio = () => {
+    function startCircularMotion(x, y) {
+      centerX = x;
+      centerY = y;
+      angle = 0;
+      aartiInterval = setInterval(() => {
+        angle += 10; // speed of rotation
+        const rad = (angle * Math.PI) / 180;
+        const offsetX = Math.cos(rad) * radius;
+        const offsetY = Math.sin(rad) * radius;
+        aartiIcon.style.left = centerX + offsetX + "px";
+        aartiIcon.style.top = centerY + offsetY + "px";
+      }, 30);
+    }
+
+    function stopCircularMotion() {
+      clearInterval(aartiInterval);
+    }
+
+    // Snow generator
+    function createSnow() {
+      const snow = document.createElement("div");
+      snow.classList.add("snow");
+      snow.style.left = Math.random() * window.innerWidth + "px";
+      snow.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      document.body.appendChild(snow);
+      setTimeout(() => snow.remove(), 5000);
+    }
+    setInterval(createSnow, 100);
+
+    // Mouse hold
+    document.addEventListener("mousedown", (e) => {
+      audio.currentTime = 0;
+      audio.play();
+      img.classList.add("glow-on-click");
+      aartiIcon.style.display = "block";
+      startCircularMotion(e.clientX, e.clientY);
+    });
+
+    document.addEventListener("mouseup", () => {
       audio.pause();
       audio.currentTime = 0;
       img.classList.remove("glow-on-click");
-      bg.classList.remove("ambient-glow");
-    };
-
-    // Desktop
-    img.addEventListener("mousedown", startAudio);
-    img.addEventListener("mouseup", stopAudio);
-    img.addEventListener("mouseleave", stopAudio);
-
-    // Mobile
-    img.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      startAudio();
+      aartiIcon.style.display = "none";
+      stopCircularMotion();
     });
-    img.addEventListener("touchend", stopAudio);
-    img.addEventListener("touchcancel", stopAudio);
+
+    // Touch hold
+    document.addEventListener("touchstart", (e) => {
+      const touch = e.touches[0];
+      audio.currentTime = 0;
+      audio.play();
+      img.classList.add("glow-on-click");
+      aartiIcon.style.display = "block";
+      startCircularMotion(touch.clientX, touch.clientY);
+    });
+
+    document.addEventListener("touchend", () => {
+      audio.pause();
+      audio.currentTime = 0;
+      img.classList.remove("glow-on-click");
+      aartiIcon.style.display = "none";
+      stopCircularMotion();
+    });
   </script>
 </body>
 </html>
